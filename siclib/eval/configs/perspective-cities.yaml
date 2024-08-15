@@ -1,0 +1,6 @@
+defaults:
+  - model: perspective-orig
+  - _self_
+
+model:
+  weights: weights/paramnet_360cities_edina_rpf.pth

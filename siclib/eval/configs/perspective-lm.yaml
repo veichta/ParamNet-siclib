@@ -1,0 +1,9 @@
+defaults:
+  - model: perspective-new
+  - _self_
+
+model:
+  param_opt:
+    name: optimization.inference_optimizer
+
+  weights: weights/paramnet-pano.tar

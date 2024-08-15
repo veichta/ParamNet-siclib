@@ -1,0 +1,12 @@
+defaults:
+  - train: perspective-fields
+  - model: param-net-new
+  - data: openpano
+  - _self_
+
+data:
+  augmentations:
+    name: perspective
+
+model:
+  weights: weights/persnet-pano-new.tar # TODO: update this path

@@ -1,0 +1,10 @@
+defaults:
+  - model: perspective-new
+  - _self_
+
+model:
+  weights: weights/paramnet-openpano.tar # TODO: update this path
+
+  param_opt:
+    name: optimization.perspective_opt
+    verbose: false

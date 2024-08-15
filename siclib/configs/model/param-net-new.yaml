@@ -1,0 +1,35 @@
+name: networks.perspective_net
+
+backbone:
+  name: encoders.mscan
+
+perspective_decoder:
+  name: decoders.perspective_decoder
+
+  up_decoder:
+    name: decoders.up_decoder
+    use_uncertainty_loss: false
+    decoder:
+      name: decoders.light_hamburger
+      predict_uncertainty: false
+      with_low_level: true
+    watch: true
+
+  latitude_decoder:
+    name: decoders.latitude_decoder
+    use_uncertainty_loss: false
+    decoder:
+      name: decoders.light_hamburger
+      predict_uncertainty: false
+      with_low_level: true
+    watch: true
+
+ll_enc:
+  name: encoders.low_level_encoder
+  feat_dim: 64
+
+param_opt: null
+
+param_net:
+  name: networks.param_net
+  original_weights: false
