@@ -1,5 +1,5 @@
 # copy all files in siclib to ../../siclib
-cp -r siclib ../../siclib
+cp -r siclib ../..
 
 # # change dir to ../..
 # cd ../..
