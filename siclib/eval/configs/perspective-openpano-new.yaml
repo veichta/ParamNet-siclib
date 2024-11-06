@@ -1,6 +1,0 @@
-defaults:
-  - model: perspective-new
-  - _self_
-
-model:
-  weights: weights/paramnet_openpano.tar # TODO: update this path

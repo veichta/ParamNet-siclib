@@ -1,6 +1,6 @@
 defaults:
-  - model: perspective-orig
+  - model: param-net
   - _self_
 
 model:
-  weights: weights/paramnet_openpano_old.tar # TODO: update this path
+  weights: weights/persnet-openpano-old.tar # TODO: update this path

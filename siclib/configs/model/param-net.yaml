@@ -1,35 +1,34 @@
 name: networks.perspective_net
 
 backbone:
-  name: encoders.mscan
+  name: encoders.mix_vit
 
 perspective_decoder:
   name: decoders.perspective_decoder
 
   up_decoder:
     name: decoders.up_decoder
+    loss_type: l2
     use_uncertainty_loss: false
     decoder:
-      name: decoders.light_hamburger
+      name: decoders.persformer_decoder
       predict_uncertainty: false
-      with_low_level: true
-    watch: true
+      use_original_architecture: true
 
   latitude_decoder:
     name: decoders.latitude_decoder
+    loss_type: l2
     use_uncertainty_loss: false
+    use_tanh: false
     decoder:
-      name: decoders.light_hamburger
+      name: decoders.persformer_decoder
       predict_uncertainty: false
-      with_low_level: true
-    watch: true
+      use_original_architecture: true
 
 ll_enc:
   name: encoders.low_level_encoder
-  feat_dim: 64
-
-param_opt: null
+  keep_resolution: false
 
 param_net:
   name: networks.param_net
-  original_weights: false
+  original_weights: true

@@ -1,13 +1,8 @@
 defaults:
   - train: perspective-fields
-  - model: perspective-net-orig
+  - model: perspective-net
   - data: openpano
   - _self_
-
-data:
-  train_batch_size: 64
-  val_batch_size: 64
-  test_batch_size: 64
 
 model:
   backbone:
