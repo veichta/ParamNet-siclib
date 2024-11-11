@@ -1,7 +1,7 @@
 seed: 0
 num_steps: 45_000
 
-writer: none
+writer: null
 log_every_iter: 500
 eval_every_iter: 1000
 

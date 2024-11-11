@@ -1,3 +1,5 @@
+"""ParamNet model for perspective fields for geocalib."""
+
 import torch
 from torch.nn import functional as F
 
@@ -16,7 +18,7 @@ class ParamNet(BaseModel):
         "backbone": {"name": "encoders.convnext"},
         "loss_weight": 1.0,
         "recover_pp": False,
-        "original_weights": False,
+        "original_weights": True,  # Backward compatibility to 360cities weights
         "estimate_distortions": False,
         "distortion_range": [-0.7, 0.7],
         "loss_scales": [1.0, 1.0, 1.0, 1.0],

@@ -1,24 +1,70 @@
+"""Simple interface for ParamNet model."""
+
+from pathlib import Path
+from typing import Dict
+
+import torch
+from omegaconf import OmegaConf
+from torch.nn.functional import interpolate
+
+from siclib.models import get_model
+from siclib.utils.image import ImagePreprocessor, load_image
+
+
 class ParamNet(torch.nn.Module):
     """Simple interface for ParamNet model."""
 
-    def __init__(self, **conf):
+    base_conf = {
+        "name": "networks.perspective_net",
+        "backbone": {"name": "encoders.mix_vit"},
+        "perspective_decoder": {
+            "name": "decoders.perspective_decoder",
+            "up_decoder": {
+                "name": "decoders.up_decoder",
+                "loss_type": "l2",
+                "use_uncertainty_loss": False,
+                "decoder": {
+                    "name": "decoders.persformer_decoder",
+                    "predict_uncertainty": False,
+                    "use_original_architecture": True,
+                },
+            },
+            "latitude_decoder": {
+                "name": "decoders.latitude_decoder",
+                "loss_type": "l2",
+                "use_uncertainty_loss": False,
+                "use_tanh": False,
+                "decoder": {
+                    "name": "decoders.persformer_decoder",
+                    "predict_uncertainty": False,
+                    "use_original_architecture": True,
+                },
+            },
+        },
+        "ll_enc": {"name": "encoders.low_level_encoder", "keep_resolution": False},
+        "param_net": {"name": "networks.param_net", "original_weights": True},
+    }
+
+    def __init__(self, weights: str = "openpano", **conf):
         """Initialize the model with optional config overrides."""
         super().__init__()
 
-        url = "https://polybox.ethz.ch/index.php/s/QDvHFbk9ARiO5hS/download"
-        model_dir = f"{torch.hub.get_dir()}/paramnet-cities/"
+        if weights == "openpano":
+            url = "https://www.polybox.ethz.ch/index.php/s/N91Kws2SkSstxeJ/download"
+        elif weights == "360cities":
+            url = (
+                "https://www.dropbox.com/scl/fi/9xmt4pdx50ida61jstyua/paramnet_360cities_edina_rpf"
+                + ".pth?rlkey=av94fij0wk4sqkoot5y11sfc4&e=1&st=uger5gb8&dl=1"
+            )
+        else:
+            raise ValueError(f"Unknown weights '{weights}', must be 'openpano' or '360cities'.")
+
+        model_dir = f"{torch.hub.get_dir()}/paramnet/"
         state_dict = torch.hub.load_state_dict_from_url(
-            url, model_dir, map_location="cpu", file_name="checkpoint.tar"
+            url, model_dir, map_location="cpu", file_name=f"paramnet-{weights}.tar"
         )
 
-        state_dict["conf"]["perspective_decoder"]["up_decoder"]["decoder"][
-            "name"
-        ] = "decoders.persformer_decoder"
-        state_dict["conf"]["perspective_decoder"]["latitude_decoder"]["decoder"][
-            "name"
-        ] = "decoders.persformer_decoder"
-        self.model_conf = state_dict["conf"]
-
+        self.model_conf = OmegaConf.create(self.base_conf)
         self.conf = OmegaConf.create({**self.model_conf, **conf})
 
         self.preprocess_conf = {"resize": 320, "edge_divisible_by": 32}
@@ -26,8 +72,14 @@ class ParamNet(torch.nn.Module):
         self.model.flexible_load(state_dict["model"])
         self.model.eval()
 
+        self.image_processor = ImagePreprocessor({**self.preprocess_conf})
+
+    def load_image(self, path: Path) -> torch.Tensor:
+        """Load image from path."""
+        return load_image(path)
+
     @torch.no_grad()
-    def calibrate(self, img: torch.Tensor, **kwargs) -> Dict[str, torch.Tensor]:
+    def calibrate(self, img: torch.Tensor) -> Dict[str, torch.Tensor]:
         """Perform calibration with online resizing.
 
         Assumes input image is in range [0, 1] and in RGB format.
@@ -44,13 +96,10 @@ class ParamNet(torch.nn.Module):
             img = img[None]  # add batch dim
         assert len(img.shape) == 4 and img.shape[0] == 1
 
-        img_data = ImagePreprocessor({**self.preprocess_conf, **kwargs})(img)
-
+        img_data = self.image_processor(img)
         out = self.model.forward(img_data)
 
-        gravity = out["gravity"]
-        camera = out["camera"]
-
+        gravity, camera = out["gravity"], out["camera"]
         camera = camera.undo_scale_crop(img_data)
 
         w, h = camera.size.unbind(-1)

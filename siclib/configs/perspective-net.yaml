@@ -4,6 +4,9 @@ defaults:
   - data: openpano
   - _self_
 
+data:
+  augmentations:
+    name: perspective
+
 model:
-  backbone:
-    weights: weights/ade_pretrained.pth # TODO: update this path
+  weights: weights/ade_pretrained.pth

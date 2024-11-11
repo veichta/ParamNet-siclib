@@ -1,6 +1,3 @@
-defaults:
-  - model: param-net
-  - _self_
-
 model:
-  weights: weights/persnet-openpano-old.tar # TODO: update this path
+  name: networks.paramnet_pretrained
+  model_weights: "openpano"

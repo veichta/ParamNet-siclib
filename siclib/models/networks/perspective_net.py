@@ -1,3 +1,5 @@
+"""PerspectiveNet model definition."""
+
 import logging
 
 from siclib.models import get_model

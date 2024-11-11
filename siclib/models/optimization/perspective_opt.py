@@ -1,3 +1,5 @@
+"""SGD optimization of perspective parameters."""
+
 import logging
 from typing import Tuple
 

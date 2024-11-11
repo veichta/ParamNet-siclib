@@ -1,6 +1,7 @@
-defaults:
-  - model: param-net
-  - _self_
-
 model:
-  weights: weights/paramnet_360cities_edina_rpf.pth
+  name: networks.paramnet_pretrained
+  model_weights: "360cities"
+
+data:
+  preprocessing:
+    resize_backend: "PIL"
